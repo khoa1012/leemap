@@ -95,7 +95,7 @@ body {
   position: relative;
 }
 
-#nature-filter-btn {
+.nature-filter-btn {
   background: #222240;
   color: #eee;
   border: 1px solid #444;
@@ -106,16 +106,19 @@ body {
   white-space: nowrap;
 }
 
-#nature-filter-btn:hover {
+.nature-filter-btn:hover {
   border-color: #6c8ebf;
 }
 
-#nature-filter-btn.nature-filtered {
+/* #nature-filter-btn.nature-filtered {
+  border-color: #8ab4f8;
+  color: #8ab4f8;
+} */
+.nature-types {
   border-color: #8ab4f8;
   color: #8ab4f8;
 }
-
-#nature-panel {
+.nature-panel {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
@@ -130,7 +133,7 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
 }
 
-#nature-panel.hidden {
+.hidden {
   display: none;
 }
 

@@ -29,12 +29,17 @@ function MapPage() {
 
   const [allIncidents, setAllIncidents] = useState([]);
   const [markerLayer, setMarkerLayer] = useState(null);
-  const [activeNatures, setActiveNatures] = useState(null); // null = all types shown
+  const [activeNatures, setActiveNatures] = useState([]); // null = all types shown
+  const [selectedNatures, setSelectedNatures] = useState([]);
   const [incCount, setIncCount] = useState(0);
   const [incidentsByLocations, setIncidentsByLocations] = useState([]);
   const [incidentsByDays, setIncidentsByDays] = useState([]);
   const [incidentsByTypes, setIncidentsByTypes] = useState([]);
   const [finalList, setFinalList] = useState([]);
+
+  // ── UI State ──────────────────────────────────────────────────────────────────
+  const [typePop, setTypePop] = useState(false);
+  const [allType, setAllType] = useState(true);
   // ── Data loading ───────────────────────────────────────────────────────────
   useEffect(() => {
     async function fetchData() {
@@ -56,7 +61,12 @@ function MapPage() {
         const filtered = incidentList.filter(
           (incident) => incident.lat != null && incident.lng != null,
         );
-
+        const natures = [
+          ...new Set(incidentList.map((inc) => inc.nature || "Unknown")),
+        ].sort();
+        setActiveNatures(natures);
+        setSelectedNatures(natures);
+        console.log(natures);
         console.log(filtered);
       } catch (err) {
         console.error(err);
@@ -66,12 +76,17 @@ function MapPage() {
   }, []);
   useEffect(() => {
     const filteredByDay = handleDays(incidentsByLocations, daysAgo);
-    const filterByNature = handleNature(filteredByDay);
+    const filterByNature = handleNature(filteredByDay, selectedNatures);
     console.log(filterByNature);
     setIncCount(filterByNature.length);
     setFinalList(filterByNature);
-  }, [incidentsByLocations, daysAgo]);
+  }, [incidentsByLocations, daysAgo, selectedNatures]);
 
+  useEffect(() => {
+    selectedNatures.length !== activeNatures.length
+      ? setAllType(false)
+      : setAllType(true);
+  }, [selectedNatures]);
   function handleDays(incidents, daysAgo) {
     const cutoff = Date.now() - daysAgo * 24 * 60 * 60 * 1000;
 
@@ -84,9 +99,22 @@ function MapPage() {
       return new Date(normalized).getTime() >= cutoff;
     });
   }
-  function handleNature(incidentsByDays) {
-    return incidentsByDays.filter((incident) => incident.nature !== null);
+  function handleNature(incidentsByDays, selectedNatures) {
+    return incidentsByDays.filter((inc) =>
+      selectedNatures.includes(inc.nature),
+    );
   }
+  function toggleNature(checkNature) {
+    setSelectedNatures((nature) =>
+      nature.includes(checkNature)
+        ? nature.filter((item) => item !== checkNature)
+        : [...nature, checkNature],
+    );
+  }
+  function onNatureChange(nature) {
+    toggleNature(nature);
+  }
+
   return (
     <>
       <header id="top-bar">
@@ -111,8 +139,47 @@ function MapPage() {
             {incCount !== 0 ? incCount : "-"} incidents
           </span>
           <div id="nature-filter-wrap">
-            <button id="nature-filter-btn">All types ▾</button>
-            <div id="nature-panel" className="hidden"></div>
+            <button onClick={() => setTypePop(!typePop)} className={allType === true?"nature-filter-btn":"nature-filter-btn nature-types"}>
+              {allType
+                ? "All types ▾"
+                : selectedNatures.length !== 0
+                  ? `${selectedNatures.length} types ▾`
+                  : "No type ▾"}
+            </button>
+            <div className={typePop === false ? "hidden" : "nature-panel"}>
+              <label
+                className="nature-row"
+                style={{ borderBottom: "1px solid #333" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedNatures.length === activeNatures.length}
+                  onChange={() => {
+                    allType === true
+                      ? setSelectedNatures([])
+                      : setSelectedNatures(activeNatures);
+                    setAllType(!allType);
+                  }}
+                />
+                ALL TYPE
+              </label>
+              {activeNatures
+                ? activeNatures.map((nature, index) => {
+                    return (
+                      <label key={nature} className="nature-row">
+                        <input
+                          type="checkbox"
+                          value={nature}
+                          checked={selectedNatures.includes(nature)}
+                          onChange={() => onNatureChange(nature)}
+                        />
+                        <span className="nature-dot"></span>
+                        {nature}
+                      </label>
+                    );
+                  })
+                : ""}
+            </div>
           </div>
         </div>
       </header>
