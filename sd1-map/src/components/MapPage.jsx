@@ -39,7 +39,7 @@ function MapPage() {
 
   // ── UI State ──────────────────────────────────────────────────────────────────
   const [typePop, setTypePop] = useState(false);
-  const [allType, setAllType] = useState(true);
+  const allType = selectedNatures.length === activeNatures.length;
   // ── Data loading ───────────────────────────────────────────────────────────
   useEffect(() => {
     async function fetchData() {
@@ -82,11 +82,11 @@ function MapPage() {
     setFinalList(filterByNature);
   }, [incidentsByLocations, daysAgo, selectedNatures]);
 
-  useEffect(() => {
-    selectedNatures.length !== activeNatures.length
-      ? setAllType(false)
-      : setAllType(true);
-  }, [selectedNatures]);
+  // useEffect(() => {
+  //   selectedNatures.length !== activeNatures.length
+  //     ? setAllType(false)
+  //     : setAllType(true);
+  // }, [selectedNatures]);
   function handleDays(incidents, daysAgo) {
     const cutoff = Date.now() - daysAgo * 24 * 60 * 60 * 1000;
 
