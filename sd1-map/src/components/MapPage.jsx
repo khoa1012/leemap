@@ -8,20 +8,7 @@ function MapPage() {
   const LEE_COUNTY_CENTER = [26.56, -81.87];
   const DEFAULT_ZOOM = 11;
 
-  // Color palette keyed by incident nature (first word, lowercase)
-  const NATURE_COLORS = {
-    disturbance: "#e74c3c",
-    assault: "#c0392b",
-    theft: "#e67e22",
-    burglary: "#d35400",
-    traffic: "#3498db",
-    suspicious: "#9b59b6",
-    medical: "#1abc9c",
-    fire: "#e74c3c",
-    welfare: "#27ae60",
-    domestic: "#c0392b",
-    default: "#7f8c8d",
-  };
+
 
   const API_BASE_URL = "http://localhost:5001";
   // ── State ──────────────────────────────────────────────────────────────────
@@ -114,7 +101,7 @@ function MapPage() {
   function onNatureChange(nature) {
     toggleNature(nature);
   }
-
+ 
   return (
     <>
       <header id="top-bar">
@@ -139,7 +126,14 @@ function MapPage() {
             {incCount !== 0 ? incCount : "-"} incidents
           </span>
           <div id="nature-filter-wrap">
-            <button onClick={() => setTypePop(!typePop)} className={allType === true?"nature-filter-btn":"nature-filter-btn nature-types"}>
+            <button
+              onClick={() => setTypePop(!typePop)}
+              className={
+                allType === true
+                  ? "nature-filter-btn"
+                  : "nature-filter-btn nature-types"
+              }
+            >
               {allType
                 ? "All types ▾"
                 : selectedNatures.length !== 0

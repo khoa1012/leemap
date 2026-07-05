@@ -7,16 +7,19 @@ import {
   Popup,
   GeoJSON,
   Polygon,
+  CircleMarker,
 } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 
+const iconCache = {};
 function Map({ finalList, countyCenter }) {
   const [leeCounty, setLeeCounty] = useState(null);
   useEffect(() => {
-    fetch("/lee-test.json")
+    fetch("/lee-county.json")
       .then((res) => res.json())
       .then(setLeeCounty);
   }, []);
@@ -50,6 +53,53 @@ function Map({ finalList, countyCenter }) {
       [26.78980006125687, -82.272362941444],
     ],
   ];
+  // Get incident color
+  // Color palette keyed by incident nature (first word, lowercase)
+  const NATURE_COLORS = {
+    disturbance: "#e74c3c",
+    assault: "#c0392b",
+    theft: "#e67e22",
+    burglary: "#d35400",
+    traffic: "#3498db",
+    suspicious: "#9b59b6",
+    medical: "#1abc9c",
+    fire: "#e74c3c",
+    welfare: "#27ae60",
+    domestic: "#c0392b",
+    default: "#7f8c8d",
+  };
+
+  function getIncidentColor(type) {
+    const lowerType = type.toLowerCase();
+    for (const keyword in NATURE_COLORS) {
+      if (lowerType.includes(keyword)) {
+        return NATURE_COLORS[keyword];
+      }
+    }
+    return NATURE_COLORS["default"];
+  }
+
+  function createIncidentIcon(nature) {
+    const color = getIncidentColor(nature);
+    if (!iconCache[color]) {
+      iconCache[color] = L.divIcon({
+        className: "",
+        html: `
+          <div style="
+        width: 14px;
+        height: 14px;
+        background: ${color};
+        border: 2px solid white;
+        border-radius: 50%;">
+          
+          </div>
+        `,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+      });
+    }
+    return iconCache[color];
+  }
   return (
     <MapContainer
       center={countyCenter}
@@ -86,7 +136,11 @@ function Map({ finalList, countyCenter }) {
       )}
       <MarkerClusterGroup>
         {finalList.map((incident, index) => (
-          <Marker key={incident.id} position={[incident.lat, incident.lng]}>
+          <Marker
+            key={incident.id}
+            position={[incident.lat, incident.lng]}
+            icon={createIncidentIcon(incident.nature)}
+          >
             <Popup>incident address {index}</Popup>
           </Marker>
         ))}
