@@ -16,7 +16,20 @@ import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 
 const iconCache = {};
-function Map({ finalList, countyCenter }) {
+//create a custom hook to move the map when user click on the item
+function MoveMap({ selectedLocation, countyCenter }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (selectedLocation) {
+      map.flyTo([selectedLocation[0], selectedLocation[1]], 18, {
+        duration: 1.2,
+      });
+    }
+  }, [selectedLocation]);
+  return null;
+}
+function Map({ finalList, countyCenter, locationMove }) {
   const [leeCounty, setLeeCounty] = useState(null);
   useEffect(() => {
     fetch("/lee-county.json")
@@ -86,8 +99,8 @@ function Map({ finalList, countyCenter }) {
         className: "",
         html: `
           <div style="
-        width: 14px;
-        height: 14px;
+        width: 18px;
+        height: 18px;
         background: ${color};
         border: 2px solid white;
         border-radius: 50%;">
@@ -103,7 +116,7 @@ function Map({ finalList, countyCenter }) {
   return (
     <MapContainer
       center={countyCenter}
-      zoom={13}
+      zoom={10}
       scrollWheelZoom={true}
       style={{ height: "100%", width: "100%" }}
     >
@@ -112,6 +125,8 @@ function Map({ finalList, countyCenter }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      {/*create a custom hook to move the map when user click on the item */}
+      <MoveMap selectedLocation={locationMove} />
       {leeCounty && (
         <GeoJSON data={leeCounty} style={{ color: "red", weight: 4 }} />
       )}

@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import "./MapPage.css";
 import Map from "./Map";
+import InteractiveList from "./InteractiveList";
 
 function MapPage() {
   // ── Constants ──────────────────────────────────────────────────────────────
 
   const LEE_COUNTY_CENTER = [26.56, -81.87];
   const DEFAULT_ZOOM = 11;
-
-
 
   const API_BASE_URL = "http://localhost:5001";
   // ── State ──────────────────────────────────────────────────────────────────
@@ -20,12 +19,16 @@ function MapPage() {
   const [selectedNatures, setSelectedNatures] = useState([]);
   const [incCount, setIncCount] = useState(0);
   const [incidentsByLocations, setIncidentsByLocations] = useState([]);
+  const [incidentsWithoutLocations, setIncidentsWithoutLocations] = useState(
+    [],
+  );
   const [incidentsByDays, setIncidentsByDays] = useState([]);
   const [incidentsByTypes, setIncidentsByTypes] = useState([]);
   const [finalList, setFinalList] = useState([]);
-
+  const [locationMove, setLocationMove] = useState(null); //state to get lat, lng when user click on the item
   // ── UI State ──────────────────────────────────────────────────────────────────
   const [typePop, setTypePop] = useState(false);
+  const [isPulled, setIsPulled] = useState(false); //pull out the interactive list
   const allType = selectedNatures.length === activeNatures.length;
   // ── Data loading ───────────────────────────────────────────────────────────
   useEffect(() => {
@@ -39,10 +42,15 @@ function MapPage() {
         setAllIncidents(incidentList);
         //should have popup complete ***********************
         console.log("fetched successfully");
-        console.log(incidentList);
+        //console.log(incidentList);
         setIncidentsByLocations(
           incidentList.filter(
             (incident) => incident.lat != null && incident.lng != null,
+          ),
+        );
+        setIncidentsWithoutLocations(
+          incidentList.filter(
+            (incident) => incident.lat === null && incident.lng === null,
           ),
         );
         const filtered = incidentList.filter(
@@ -101,7 +109,10 @@ function MapPage() {
   function onNatureChange(nature) {
     toggleNature(nature);
   }
- 
+  //Get the lat lon when user click to the incident on the list (call back function)
+  function getLocation(lat,lon){
+    setLocationMove([lat,lon]);
+  }
   return (
     <>
       <header id="top-bar">
@@ -152,7 +163,6 @@ function MapPage() {
                     allType === true
                       ? setSelectedNatures([])
                       : setSelectedNatures(activeNatures);
-                    setAllType(!allType);
                   }}
                 />
                 ALL TYPE
@@ -179,9 +189,34 @@ function MapPage() {
       </header>
 
       <div className="mapWrapper">
-        <Map finalList={finalList} countyCenter={LEE_COUNTY_CENTER} />
+        <Map finalList={finalList} countyCenter={LEE_COUNTY_CENTER} locationMove={locationMove}/>
       </div>
-
+      <div
+        className={
+          isPulled ? "list-wrapper pull-right" : "list-wrapper pull-left"
+        }
+      >
+        <InteractiveList finalList={finalList} getLocation={getLocation}/>
+        <div
+          className="list-pull"
+          onClick={() => {
+            setIsPulled(!isPulled);
+          }}
+        >
+          <h3
+            style={{
+              position: "absolute",
+              top: "35%",
+              left: "-106%",
+              width: "150px",
+              color: "white",
+              rotate: "-90deg",
+            }}
+          >
+            Interactive List
+          </h3>
+        </div>
+      </div>
       <footer id="footer-bar">
         Created by:{" "}
         <a
