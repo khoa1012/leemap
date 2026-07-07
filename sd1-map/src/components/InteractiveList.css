@@ -123,6 +123,10 @@
 .list-board-item:hover {
   transform: scale(1.02);
 }
+.item-selected-border{
+  border: 2px solid orange;
+  background: #444e7c;
+}
 .list-board-item-second {
   margin-top: 10px;
   display: flex;

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./InteractiveList.css";
 function InteractiveList({ finalList,finalListUnlocated, getLocation }) {
   const [isLocated, setIsLocated] = useState(true);
+  const [selectedItem, setSelectedItem] = useState(null);
   
   return (
     <div className="list">
@@ -50,8 +51,10 @@ function InteractiveList({ finalList,finalListUnlocated, getLocation }) {
       </div>
       <div className="list-board">
         {isLocated?finalList.map((incident, index) => (
-          <div key={incident.id} className="list-board-item"
-          onClick={()=>{getLocation(incident.lat,incident.lng)}}>
+          <div key={incident.id} className={selectedItem === incident.id?"list-board-item item-selected-border":"list-board-item"}
+          onClick={()=>{
+            setSelectedItem(incident.id)
+            getLocation(incident.lat,incident.lng);}}>
             <h2
               style={{
                 overflow: "hidden",
