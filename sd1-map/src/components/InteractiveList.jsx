@@ -71,8 +71,8 @@ function InteractiveList({ finalList,finalListUnlocated, getLocation }) {
           </div>
         )):
         finalListUnlocated.map((incident, index) => (
-          <div key={incident.id} className="list-board-item"
-          onClick={()=>{}}>
+          <div key={incident.id} className={selectedItem === incident.id?"list-board-item item-selected-border":"list-board-item"}
+          onClick={()=>{setSelectedItem(incident.id)}}>
             <h2
               style={{
                 overflow: "hidden",
