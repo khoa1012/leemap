@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./InteractiveList.css";
-function InteractiveList({ finalList, getLocation }) {
+function InteractiveList({ finalList,finalListUnlocated, getLocation }) {
   const [isLocated, setIsLocated] = useState(true);
   
   return (
@@ -49,7 +49,7 @@ function InteractiveList({ finalList, getLocation }) {
         {/* <button className="list-search-btn">Search</button> */}
       </div>
       <div className="list-board">
-        {finalList.map((incident, index) => (
+        {isLocated?finalList.map((incident, index) => (
           <div key={incident.id} className="list-board-item"
           onClick={()=>{getLocation(incident.lat,incident.lng)}}>
             <h2
@@ -66,7 +66,27 @@ function InteractiveList({ finalList, getLocation }) {
               <span>{incident.occuredDate.split(".")[0]}</span>
             </div>
           </div>
-        ))}
+        )):
+        finalListUnlocated.map((incident, index) => (
+          <div key={incident.id} className="list-board-item"
+          onClick={()=>{}}>
+            <h2
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {incident.address}
+            </h2>
+            <div className="list-board-item-second">
+              <h3>{incident.city}</h3>
+              <span>{incident.occuredDate.split(".")[0]}</span>
+            </div>
+          </div>
+        ))
+        
+        }
       </div>
       
     </div>

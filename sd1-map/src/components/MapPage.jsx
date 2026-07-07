@@ -25,6 +25,7 @@ function MapPage() {
   const [incidentsByDays, setIncidentsByDays] = useState([]);
   const [incidentsByTypes, setIncidentsByTypes] = useState([]);
   const [finalList, setFinalList] = useState([]);
+  const [finalListUnlocated, setFinalListUnlcated] = useState([]);
   const [locationMove, setLocationMove] = useState(null); //state to get lat, lng when user click on the item
   // ── UI State ──────────────────────────────────────────────────────────────────
   const [typePop, setTypePop] = useState(false);
@@ -76,7 +77,12 @@ function MapPage() {
     setIncCount(filterByNature.length);
     setFinalList(filterByNature);
   }, [incidentsByLocations, daysAgo, selectedNatures]);
-
+  useEffect(() => {
+      const filteredByDay = handleDays(incidentsWithoutLocations, daysAgo);
+      const filterByNature = handleNature(filteredByDay, selectedNatures);
+      console.log(filterByNature);
+      setFinalListUnlcated(filterByNature);
+    }, [incidentsWithoutLocations, daysAgo, selectedNatures]);
   // useEffect(() => {
   //   selectedNatures.length !== activeNatures.length
   //     ? setAllType(false)
@@ -196,7 +202,7 @@ function MapPage() {
           isPulled ? "list-wrapper pull-right" : "list-wrapper pull-left"
         }
       >
-        <InteractiveList finalList={finalList} getLocation={getLocation}/>
+        <InteractiveList finalList={finalList} finalListUnlocated={finalListUnlocated} getLocation={getLocation}/>
         <div
           className="list-pull"
           onClick={() => {
